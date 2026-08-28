@@ -155,7 +155,9 @@ export function useTripPlanner() {
     const controller = new AbortController()
     abortControllerRef.current = controller
 
+    let timedOut = false
     const timeoutId = window.setTimeout(() => {
+      timedOut = true
       controller.abort()
     }, REQUEST_TIMEOUT_MS)
 
@@ -189,9 +191,7 @@ export function useTripPlanner() {
       if (requestId !== requestIdRef.current) return
 
       if (error instanceof DOMException && error.name === 'AbortError') {
-        if (controller.signal.aborted && !abortControllerRef.current?.signal.aborted) {
-          return
-        }
+        if (!timedOut) return
 
         dispatch({
           type: 'submit_error',
