@@ -1,1 +1,59 @@
 @import 'tailwindcss';
+
+@theme {
+  --color-ocean: #0e4d6d;
+  --color-ocean-deep: #083549;
+  --color-sand: #f7f2ea;
+  --color-sand-dark: #ebe3d6;
+  --color-coral: #d65a31;
+  --color-coral-dark: #b94824;
+  --color-pine: #3d6b5e;
+  --color-ink: #1c2834;
+  --color-fog: #d9e2e8;
+  --color-mist: #f0f4f7;
+  --font-display: 'Playfair Display', Georgia, serif;
+  --font-body: 'Work Sans', system-ui, sans-serif;
+}
+
+@layer base {
+  html {
+    font-family: var(--font-body);
+    color: var(--color-ink);
+    background-color: var(--color-sand);
+  }
+
+  body {
+    min-height: 100vh;
+  }
+}
+
+@layer utilities {
+  .font-display {
+    font-family: var(--font-display);
+  }
+
+  .page-enter {
+    animation: page-enter 0.45s ease-out both;
+  }
+
+  @keyframes page-enter {
+    from {
+      opacity: 0;
+      transform: translateY(8px);
+    }
+    to {
+      opacity: 1;
+      transform: translateY(0);
+    }
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .page-enter {
+      animation: none;
+    }
+
+    .motion-safe-transition {
+      transition: none !important;
+    }
+  }
+}

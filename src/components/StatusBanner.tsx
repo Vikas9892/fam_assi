@@ -22,16 +22,16 @@ export function StatusBanner({ error, onRetry, isLoading }: StatusBannerProps) {
   return (
     <div
       role="alert"
-      className="mt-6 rounded-md border border-amber-200 bg-amber-50 px-4 py-3 text-sm text-amber-950"
+      className="mt-6 rounded-xl border border-coral/30 bg-coral/10 px-4 py-4 text-sm text-coral-dark"
     >
-      <p>{message}</p>
+      <p className="font-medium">{message}</p>
       <button
         type="button"
         onClick={onRetry}
         disabled={isLoading}
-        className="mt-3 rounded-md bg-amber-900 px-3 py-1.5 text-xs font-medium text-white hover:bg-amber-800 disabled:cursor-not-allowed disabled:opacity-50"
+        className="mt-3 min-h-11 rounded-lg bg-coral px-4 py-2.5 text-xs font-semibold text-white transition-colors motion-safe-transition hover:bg-coral-dark focus:outline-none focus:ring-2 focus:ring-coral/40 disabled:cursor-not-allowed disabled:opacity-50"
       >
-        Retry
+        Try again
       </button>
     </div>
   )

@@ -20,19 +20,25 @@ function App() {
   const showEmptyState = !itinerary && !error && !isLoading
 
   return (
-    <main className="mx-auto min-h-screen max-w-3xl bg-slate-50 p-6">
-      <header className="mb-8">
-        <h1 className="text-2xl font-semibold text-slate-900">AI Trip Planner</h1>
-        <p className="mt-1 text-slate-600">
-          Describe where you want to go — get a structured day-by-day itinerary.
+    <main className="page-enter mx-auto min-h-screen w-full max-w-3xl overflow-x-hidden px-4 py-8 sm:px-6 sm:py-10">
+      <header className="mb-8 text-center sm:text-left">
+        <p className="text-xs font-semibold uppercase tracking-[0.25em] text-ocean/60">
+          Trip planner
+        </p>
+        <h1 className="font-display text-4xl font-semibold text-ocean sm:text-5xl">
+          Chart your journey
+        </h1>
+        <p className="mt-2 max-w-xl text-sm leading-relaxed text-ink/70">
+          Turn a rough travel idea into a structured day-by-day route you can
+          browse, trim, and reorder.
         </p>
       </header>
 
       <TripInputForm status={status} onSubmit={submit} />
 
       {isLoading && (
-        <p className="mt-6 text-sm text-slate-600" aria-live="polite">
-          Building your itinerary…
+        <p className="mt-6 text-center text-sm text-ocean/70 sm:text-left" aria-live="polite">
+          Tracing your route…
         </p>
       )}
 
@@ -41,11 +47,19 @@ function App() {
       )}
 
       {showEmptyState && (
-        <section className="mt-10 rounded-lg border border-dashed border-slate-300 bg-white px-6 py-10 text-center">
-          <h2 className="text-lg font-medium text-slate-800">No itinerary yet</h2>
-          <p className="mt-2 text-sm text-slate-600">
-            Tell us your destination, how many days, and what you care about — food,
-            culture, pace, neighborhoods — and we will build a day-by-day plan.
+        <section className="mt-10 rounded-2xl border border-dashed border-ocean/25 bg-white/60 px-6 py-12 text-center">
+          <div
+            aria-hidden="true"
+            className="mx-auto mb-4 flex size-12 items-center justify-center rounded-full bg-ocean/10 text-ocean"
+          >
+            ✦
+          </div>
+          <h2 className="font-display text-xl font-semibold text-ocean">
+            Your map starts here
+          </h2>
+          <p className="mx-auto mt-2 max-w-md text-sm leading-relaxed text-ink/65">
+            Share a destination, number of days, and what you want from the trip.
+            We will return a structured itinerary — not a chat transcript.
           </p>
         </section>
       )}
