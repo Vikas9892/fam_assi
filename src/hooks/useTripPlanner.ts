@@ -28,6 +28,7 @@ type PlannerAction =
   | { type: 'submit_start' }
   | { type: 'submit_success'; itinerary: Itinerary }
   | { type: 'submit_error'; error: PlannerError }
+  | { type: 'reset' }
   | { type: 'set_active_day'; day: number }
   | { type: 'remove_stop'; stopId: string }
   | { type: 'move_stop'; stopId: string; direction: 'up' | 'down' }
@@ -61,6 +62,9 @@ function plannerReducer(state: PlannerState, action: PlannerAction): PlannerStat
         status: state.itinerary ? 'success' : 'error',
         error: action.error,
       }
+
+    case 'reset':
+      return { ...initialState }
 
     case 'set_active_day':
       return { ...state, activeDay: action.day }
@@ -237,6 +241,14 @@ export function useTripPlanner() {
     dispatch({ type: 'move_stop', stopId, direction })
   }, [])
 
+  const reset = useCallback(() => {
+    abortControllerRef.current?.abort()
+    abortControllerRef.current = null
+    requestIdRef.current += 1
+    lastPromptRef.current = ''
+    dispatch({ type: 'reset' })
+  }, [])
+
   return {
     status: state.status,
     itinerary: state.itinerary,
@@ -244,6 +256,7 @@ export function useTripPlanner() {
     activeDay: state.activeDay,
     submit,
     retry,
+    reset,
     setActiveDay,
     removeStop,
     moveStop,

@@ -1,4 +1,6 @@
 import { useState } from 'react'
+import { CATEGORY_LABELS, CategoryIcon } from './icons/CategoryIcon'
+import { getStopImageUrl } from '../lib/images'
 import type { Stop, StopCategory } from '../lib/schema'
 
 const CATEGORY_STYLES: Record<StopCategory, string> = {
@@ -19,79 +21,102 @@ type StopCardProps = {
 
 export function StopCard({ stop, isFirst, isLast, onRemove, onMove }: StopCardProps) {
   const [expanded, setExpanded] = useState(false)
+  const [imageFailed, setImageFailed] = useState(false)
+  const imageUrl = getStopImageUrl(stop)
 
   return (
-    <article className="relative pl-8">
-      <span
-        aria-hidden="true"
-        className={`absolute left-[7px] w-0.5 bg-ocean/25 ${isFirst ? 'top-4' : 'top-0'} ${isLast ? 'bottom-[calc(100%-1rem)]' : 'bottom-0'}`}
-      />
-      <span
-        aria-hidden="true"
-        className="absolute left-0 top-4 size-4 rounded-full border-2 border-ocean bg-white"
-      />
+    <article className="timeline-item relative pb-8 pl-10 last:pb-0 sm:pl-12">
+      <div className="absolute left-0 top-0 flex w-6 flex-col items-center sm:w-7">
+        {stop.time && (
+          <time className="mb-2 whitespace-nowrap text-[11px] font-semibold uppercase tracking-wide text-ocean/65">
+            {stop.time}
+          </time>
+        )}
+        <span
+          aria-hidden="true"
+          className="timeline-node size-3.5 shrink-0 rounded-full border-2 border-ocean bg-white shadow-sm"
+        />
+      </div>
+      {!isLast && (
+        <span
+          aria-hidden="true"
+          className="absolute bottom-0 left-[6px] top-8 w-px bg-ocean/20 sm:left-[7px]"
+        />
+      )}
 
-      <div className="motion-safe-transition rounded-xl border border-fog bg-white p-4 shadow-sm transition-shadow hover:shadow-md">
-        <div className="flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
-          <div className="min-w-0 flex-1">
-            <div className="flex flex-wrap items-center gap-2">
-              {stop.time && (
-                <span className="text-xs font-medium uppercase tracking-wide text-ocean/60">
-                  {stop.time}
-                </span>
-              )}
-              <span
-                className={`rounded-full px-2.5 py-0.5 text-[11px] font-semibold uppercase tracking-wide ring-1 ${CATEGORY_STYLES[stop.category]}`}
-              >
-                {stop.category}
-              </span>
-            </div>
-            <h4 className="mt-1 font-display text-lg font-semibold text-ocean">{stop.title}</h4>
+      <div className="card-lift rounded-xl border border-fog bg-white shadow-sm">
+        <div className="overflow-hidden rounded-t-xl">
+          {!imageFailed ? (
+            <img
+              src={imageUrl}
+              alt={stop.title}
+              loading="lazy"
+              decoding="async"
+              onError={() => setImageFailed(true)}
+              className="image-zoom aspect-[16/7] w-full object-cover sm:aspect-[16/6]"
+            />
+          ) : (
+            <div
+              aria-hidden="true"
+              className="aspect-[16/7] w-full bg-gradient-to-br from-mist via-sand to-ocean/10 sm:aspect-[16/6]"
+            />
+          )}
+        </div>
+
+        <div className="p-4 sm:p-5">
+          <div className="flex flex-wrap items-center gap-2">
+            <span
+              className={`inline-flex items-center gap-1.5 rounded-full px-2.5 py-1 text-[11px] font-semibold uppercase tracking-wide ring-1 ${CATEGORY_STYLES[stop.category]}`}
+            >
+              <CategoryIcon category={stop.category} className="size-3.5" />
+              {CATEGORY_LABELS[stop.category]}
+            </span>
           </div>
 
-          <div className="flex flex-wrap items-center gap-1 sm:shrink-0">
+          <h4 className="mt-2 font-display text-xl font-semibold text-ocean">{stop.title}</h4>
+
+          {!expanded && (
+            <p className="mt-2 line-clamp-2 text-sm leading-relaxed text-ink/75">{stop.description}</p>
+          )}
+
+          {expanded && (
+            <p className="mt-3 text-sm leading-relaxed text-ink/80">{stop.description}</p>
+          )}
+
+          <div className="mt-4 flex flex-wrap items-center gap-2 border-t border-fog pt-4">
             <button
               type="button"
               onClick={() => setExpanded((value) => !value)}
               aria-expanded={expanded}
-              className="inline-flex min-h-11 min-w-11 items-center justify-center rounded-lg px-3 text-xs font-medium text-ocean hover:bg-mist focus:outline-none focus:ring-2 focus:ring-ocean/30"
+              className="btn-press inline-flex min-h-11 items-center rounded-lg px-3 text-sm font-medium text-ocean hover:bg-mist focus:outline-none focus:ring-2 focus:ring-ocean/30"
             >
-              {expanded ? 'Hide' : 'Notes'}
+              {expanded ? 'Collapse details' : 'View details'}
             </button>
             <button
               type="button"
               disabled={isFirst}
               onClick={() => onMove(stop.id, 'up')}
-              className="inline-flex min-h-11 min-w-11 items-center justify-center rounded-lg text-sm font-medium text-ocean hover:bg-mist focus:outline-none focus:ring-2 focus:ring-ocean/30 disabled:cursor-not-allowed disabled:opacity-40"
-              aria-label="Move stop up"
+              className="btn-press inline-flex min-h-11 items-center rounded-lg px-3 text-sm font-medium text-ocean hover:bg-mist focus:outline-none focus:ring-2 focus:ring-ocean/30 disabled:cursor-not-allowed disabled:opacity-40"
             >
-              ↑
+              Move earlier
             </button>
             <button
               type="button"
               disabled={isLast}
               onClick={() => onMove(stop.id, 'down')}
-              className="inline-flex min-h-11 min-w-11 items-center justify-center rounded-lg text-sm font-medium text-ocean hover:bg-mist focus:outline-none focus:ring-2 focus:ring-ocean/30 disabled:cursor-not-allowed disabled:opacity-40"
-              aria-label="Move stop down"
+              className="btn-press inline-flex min-h-11 items-center rounded-lg px-3 text-sm font-medium text-ocean hover:bg-mist focus:outline-none focus:ring-2 focus:ring-ocean/30 disabled:cursor-not-allowed disabled:opacity-40"
             >
-              ↓
+              Move later
             </button>
             <button
               type="button"
               onClick={() => onRemove(stop.id)}
-              className="inline-flex min-h-11 min-w-11 items-center justify-center rounded-lg px-3 text-xs font-medium text-coral hover:bg-coral/10 focus:outline-none focus:ring-2 focus:ring-coral/30"
-              aria-label={`Remove ${stop.title}`}
+              className="btn-press inline-flex min-h-11 items-center rounded-lg px-3 text-sm font-medium text-coral hover:bg-coral/10 focus:outline-none focus:ring-2 focus:ring-coral/30"
             >
-              Remove
+              Remove stop
             </button>
           </div>
         </div>
-
-        {expanded && (
-          <p className="mt-3 border-t border-fog pt-3 text-sm leading-relaxed text-ink/80">
-            {stop.description}
-          </p>
-        )}
       </div>
     </article>
   )
