@@ -1,39 +1,50 @@
+import { DayTabs } from './DayTabs'
+import { StopCard } from './StopCard'
 import type { Itinerary } from '../lib/schema'
 
 type ItineraryViewProps = {
   itinerary: Itinerary
+  activeDay: number
+  onSelectDay: (day: number) => void
+  onRemoveStop: (stopId: string) => void
+  onMoveStop: (stopId: string, direction: 'up' | 'down') => void
 }
 
-export function ItineraryView({ itinerary }: ItineraryViewProps) {
+export function ItineraryView({
+  itinerary,
+  activeDay,
+  onSelectDay,
+  onRemoveStop,
+  onMoveStop,
+}: ItineraryViewProps) {
+  const currentDay = itinerary.days.find((day) => day.day === activeDay)
+
   return (
-    <section className="mt-8 space-y-6">
+    <section className="mt-8 space-y-4">
       <header>
         <h2 className="text-xl font-semibold text-slate-900">{itinerary.destination}</h2>
       </header>
 
-      {itinerary.days.map((day) => (
-        <article key={day.day} className="rounded-lg border border-slate-200 bg-white p-4">
-          <h3 className="font-medium text-slate-900">
-            Day {day.day}: {day.label}
+      <DayTabs days={itinerary.days} activeDay={activeDay} onSelect={onSelectDay} />
+
+      {currentDay && (
+        <div className="space-y-3">
+          <h3 className="text-sm font-medium text-slate-700">
+            Day {currentDay.day}: {currentDay.label}
           </h3>
-          <ul className="mt-3 space-y-3">
-            {day.stops.map((stop) => (
-              <li key={stop.id} className="border-t border-slate-100 pt-3 first:border-t-0 first:pt-0">
-                <div className="flex flex-wrap items-baseline gap-2">
-                  {stop.time && (
-                    <span className="text-sm text-slate-500">{stop.time}</span>
-                  )}
-                  <span className="font-medium text-slate-900">{stop.title}</span>
-                  <span className="rounded bg-slate-100 px-2 py-0.5 text-xs uppercase text-slate-600">
-                    {stop.category}
-                  </span>
-                </div>
-                <p className="mt-1 text-sm text-slate-600">{stop.description}</p>
-              </li>
-            ))}
-          </ul>
-        </article>
-      ))}
+
+          {currentDay.stops.map((stop, index) => (
+            <StopCard
+              key={stop.id}
+              stop={stop}
+              isFirst={index === 0}
+              isLast={index === currentDay.stops.length - 1}
+              onRemove={onRemoveStop}
+              onMove={onMoveStop}
+            />
+          ))}
+        </div>
+      )}
     </section>
   )
 }

@@ -3,7 +3,16 @@ import { TripInputForm } from './components/TripInputForm'
 import { useTripPlanner } from './hooks/useTripPlanner'
 
 function App() {
-  const { status, itinerary, error, submit } = useTripPlanner()
+  const {
+    status,
+    itinerary,
+    error,
+    activeDay,
+    submit,
+    setActiveDay,
+    removeStop,
+    moveStop,
+  } = useTripPlanner()
 
   return (
     <main className="mx-auto min-h-screen max-w-3xl bg-slate-50 p-6">
@@ -26,7 +35,15 @@ function App() {
         </p>
       )}
 
-      {itinerary && <ItineraryView itinerary={itinerary} />}
+      {itinerary && (
+        <ItineraryView
+          itinerary={itinerary}
+          activeDay={activeDay}
+          onSelectDay={setActiveDay}
+          onRemoveStop={removeStop}
+          onMoveStop={moveStop}
+        />
+      )}
     </main>
   )
 }
