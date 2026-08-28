@@ -155,21 +155,21 @@ I did not use AI-generated code as a substitute for understanding the architectu
 
 ## Time Spent
 
-**Approximately 8 hours of active development time.**
+**Approximately 6.5 hours of active development time.**
 
 | Phase | Approx. time | What I worked on |
 | --- | ---: | --- |
-| Foundation | ~30 min | Vite/React/TypeScript setup, Tailwind, Zod schema |
-| Backend | ~1 hr | Groq proxy, JSON mode, validation and repair handling |
-| Happy path | ~45 min | Input form, API integration, itinerary rendering |
-| Interactivity | ~45 min | Day tabs, expand/collapse, remove and reorder |
-| Reliability | ~1 hr 15 min | Timeout, AbortController, stale-response protection, errors and retry |
-| Visual design | ~45 min | Travel-focused visual system and component styling |
-| Manual polish | ~30 min | Copy, spacing, and visual adjustments |
-| Mobile / accessibility | ~30 min | Responsive layout, focus states, touch targets |
-| README / submission prep | ~30 min | Documentation, production build, final cleanup |
-| Debugging / testing | ~1 hr | API/model migration, blank-page fix, Vercel config, end-to-end testing |
-| **Total** | **~8 hours** | |
+| Foundation | ~25 min | Vite/React/TypeScript setup, Tailwind, Zod schema |
+| Backend | ~50 min | Groq proxy, JSON mode, validation and repair handling |
+| Happy path | ~35 min | Input form, API integration, itinerary rendering |
+| Interactivity | ~35 min | Day tabs, expand/collapse, remove and reorder |
+| Reliability | ~55 min | Timeout, AbortController, stale-response protection, errors and retry |
+| Visual design | ~40 min | Travel-focused visual system and component styling |
+| Manual polish | ~25 min | Copy, spacing, and visual adjustments |
+| Mobile / accessibility | ~25 min | Responsive layout, focus states, touch targets |
+| README / submission prep | ~20 min | Documentation, build verification, and cleanup |
+| Debugging / testing | ~40 min | API/model migration, blank-page debugging, Vercel configuration, end-to-end testing |
+| **Total** | **~6.5 hours** | |
 
 These are approximate active-work estimates, not exact stopwatch measurements. I prioritized core assignment requirements over extra features.
 
