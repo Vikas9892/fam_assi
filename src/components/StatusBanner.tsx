@@ -22,6 +22,7 @@ export function StatusBanner({ error, onRetry, isLoading }: StatusBannerProps) {
   return (
     <div
       role="alert"
+      aria-live="assertive"
       className="mt-6 rounded-xl border border-coral/30 bg-coral/10 px-4 py-4 text-sm text-coral-dark"
     >
       <p className="font-medium">{message}</p>
