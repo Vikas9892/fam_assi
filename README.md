@@ -6,6 +6,18 @@ AI Trip Planner turns a free-form travel request into a structured, day-by-day i
 
 The frontend lets you browse days, expand stop details, remove stops, and reorder them locally. Edits stay in React state and never trigger another AI call.
 
+## Live Demo
+
+Try the deployed app here:
+
+**[https://fam-assi.vercel.app](https://fam-assi.vercel.app)**
+
+Example prompt:
+
+> Plan a 4-day trip to Tokyo focused on food, neighborhoods, culture and a relaxed pace.
+
+Click **Build itinerary** to generate a structured day-by-day plan.
+
 ## Features
 
 - Free-form trip input via textarea
@@ -103,6 +115,32 @@ Click **Build itinerary**. Once loaded, switch between days, expand stops for de
 - Generated travel details may be inaccurate — verify before booking
 - Requires `vercel dev` or deployment for API routes during local development
 
+## Deployment
+
+The app is deployed on **Vercel** and connected to the GitHub repository.
+
+| | |
+| --- | --- |
+| **Production URL** | [https://fam-assi.vercel.app](https://fam-assi.vercel.app) |
+| **Platform** | Vercel (serverless functions + static Vite build) |
+| **Repository** | [github.com/Vikas9892/fam_assi](https://github.com/Vikas9892/fam_assi) |
+
+### Deployment issues I debugged personally
+
+After the first deploy, **Build itinerary** failed in production with a generic error even though the app worked locally. I traced and fixed these issues myself:
+
+1. **Missing `GROQ_API_KEY` on Vercel** — the serverless function had no API key in production. I added the environment variable in the Vercel dashboard for Production and Preview, then redeployed.
+
+2. **`FUNCTION_INVOCATION_FAILED` / module not found** — the API imported the Zod schema from outside the `api/` directory, which Vercel did not bundle correctly. I moved the schema to `api/lib/schema.ts` and fixed the import path for ESM (`./lib/schema.js`).
+
+3. **Groq model deprecation** — `llama-3.3-70b-versatile` was retired by Groq (August 2026). I migrated the backend to `openai/gpt-oss-120b`, Groq's recommended replacement.
+
+4. **Blank page in production** — `vercel.json` rewrites were sending Vite asset paths (e.g. `/src/main.tsx`) to `index.html`, so React never loaded. I updated the rewrite rules to exclude `/src/`, `/@`, `/node_modules/`, and `/assets/`.
+
+5. **Node 24 + Groq SDK incompatibility locally** — the Groq SDK threw an `Expect` header error on Node 24. I replaced it with native `fetch` for more reliable server-side requests.
+
+Each fix was verified with production API tests and end-to-end checks in the deployed app before submission.
+
 ## AI Usage
 
 I used **Cursor (AI-assisted IDE)** during development, following a phased implementation plan that I created for the project.
@@ -124,7 +162,7 @@ The project was built in phases rather than generating the entire application in
 5. **Reliability** — request cancellation, stale-response protection, client-side timeout, retry behavior, and distinct error states per failure mode
 6. **Visual design** — initial visual design system and component styling
 7. **Manual polish (Phase 5.5)** — copy, spacing, and visual adjustments done by hand; AI-generated styling was reviewed rather than treated as final
-8. **Debugging and submission prep** — Groq model migration (`llama-3.3-70b-versatile` → `openai/gpt-oss-120b`), blank-page fix, Node 24/fetch compatibility, and Vercel rewrite configuration
+8. **Deployment debugging (manual)** — I personally diagnosed and fixed production failures after the first Vercel deploy (see [Deployment](#deployment))
 
 ### What I personally verified
 
@@ -142,7 +180,8 @@ Phase 5.5 polish was done manually rather than delegated to the AI tool.
 
 AI assistance did not replace final responsibility for the project. I was responsible for:
 
-- configuring the local API key via environment variables
+- configuring the local and Vercel API keys via environment variables
+- deploying to Vercel and debugging production-only failures
 - running and testing the application
 - reviewing generated code and changes
 - debugging issues during development
@@ -168,7 +207,7 @@ I did not use AI-generated code as a substitute for understanding the architectu
 | Manual polish | ~25 min | Copy, spacing, and visual adjustments |
 | Mobile / accessibility | ~25 min | Responsive layout, focus states, touch targets |
 | README / submission prep | ~20 min | Documentation, build verification, and cleanup |
-| Debugging / testing | ~40 min | API/model migration, blank-page debugging, Vercel configuration, end-to-end testing |
+| Debugging / testing | ~40 min | Production deployment, API/model migration, blank-page fix, Vercel env + rewrite config |
 | **Total** | **~6.5 hours** | |
 
 These are approximate active-work estimates, not exact stopwatch measurements. I prioritized core assignment requirements over extra features.
