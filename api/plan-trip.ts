@@ -1,10 +1,14 @@
 import type { VercelRequest, VercelResponse } from '@vercel/node'
-import Groq from 'groq-sdk'
-import type { ChatCompletionMessageParam } from 'groq-sdk/resources/chat/completions'
 import { itinerarySchema } from '../src/lib/schema'
 
-const MODEL = 'llama-3.3-70b-versatile'
+const MODEL = process.env.GROQ_MODEL ?? 'openai/gpt-oss-120b'
 const TEMPERATURE = 0.4
+const GROQ_API_URL = 'https://api.groq.com/openai/v1/chat/completions'
+
+type GroqMessage = {
+  role: 'system' | 'user' | 'assistant'
+  content: string
+}
 
 const SYSTEM_PROMPT = `You are a travel itinerary planner. Return ONLY valid JSON with no markdown, no commentary, and no code fences.
 
@@ -82,7 +86,7 @@ function isInvalidPrompt(prompt: unknown): prompt is string {
 function buildRepairMessages(
   userPrompt: string,
   failure: ParseOutcome & { ok: false },
-): ChatCompletionMessageParam[] {
+): GroqMessage[] {
   return [
     { role: 'system', content: SYSTEM_PROMPT },
     { role: 'user', content: userPrompt },
@@ -100,17 +104,36 @@ Return corrected JSON only. No markdown fences, no explanation. Match the schema
 }
 
 async function requestItinerary(
-  groq: Groq,
-  messages: ChatCompletionMessageParam[],
+  apiKey: string,
+  messages: GroqMessage[],
 ): Promise<string> {
-  const completion = await groq.chat.completions.create({
-    model: MODEL,
-    temperature: TEMPERATURE,
-    response_format: { type: 'json_object' },
-    messages,
+  const response = await fetch(GROQ_API_URL, {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+      Authorization: `Bearer ${apiKey}`,
+    },
+    body: JSON.stringify({
+      model: MODEL,
+      temperature: TEMPERATURE,
+      response_format: { type: 'json_object' },
+      messages,
+    }),
   })
 
-  const content = completion.choices[0]?.message?.content
+  if (response.status === 429) {
+    throw { status: 429 }
+  }
+
+  if (!response.ok) {
+    throw new Error(`Groq API returned ${response.status}`)
+  }
+
+  const data = (await response.json()) as {
+    choices?: Array<{ message?: { content?: string | null } }>
+  }
+
+  const content = data.choices?.[0]?.message?.content
   if (!content) {
     throw new Error('Model returned an empty response')
   }
@@ -163,20 +186,19 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
     })
   }
 
-  const groq = new Groq({ apiKey })
   const trimmedPrompt = prompt.trim()
-  const initialMessages: ChatCompletionMessageParam[] = [
+  const initialMessages: GroqMessage[] = [
     { role: 'system', content: SYSTEM_PROMPT },
     { role: 'user', content: trimmedPrompt },
   ]
 
   try {
-    let raw = await requestItinerary(groq, initialMessages)
+    let raw = await requestItinerary(apiKey, initialMessages)
     let outcome = parseAndValidate(raw)
 
     if (!outcome.ok) {
       const repairMessages = buildRepairMessages(trimmedPrompt, outcome)
-      raw = await requestItinerary(groq, repairMessages)
+      raw = await requestItinerary(apiKey, repairMessages)
       outcome = parseAndValidate(raw)
     }
 
