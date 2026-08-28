@@ -1,5 +1,5 @@
 import type { VercelRequest, VercelResponse } from '@vercel/node'
-import { itinerarySchema } from '../lib/schema'
+import { itinerarySchema } from './lib/schema'
 
 const MODEL = process.env.GROQ_MODEL ?? 'openai/gpt-oss-120b'
 const TEMPERATURE = 0.4

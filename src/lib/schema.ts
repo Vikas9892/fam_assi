@@ -1,1 +1,1 @@
-export * from '../../lib/schema'
+export * from '../../api/lib/schema'
