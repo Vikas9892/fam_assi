@@ -4,6 +4,7 @@ import type { Itinerary } from '../lib/schema'
 export type PlannerStatus = 'idle' | 'loading' | 'success' | 'error'
 
 export type PlannerErrorCode =
+  | 'invalid_request'
   | 'rate_limited'
   | 'malformed_json'
   | 'invalid_schema'
@@ -112,6 +113,7 @@ function plannerReducer(state: PlannerState, action: PlannerAction): PlannerStat
 
 function isPlannerErrorCode(value: unknown): value is PlannerErrorCode {
   return (
+    value === 'invalid_request' ||
     value === 'rate_limited' ||
     value === 'malformed_json' ||
     value === 'invalid_schema' ||

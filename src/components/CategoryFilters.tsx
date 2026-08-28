@@ -37,7 +37,7 @@ export function CategoryFilters({ active, onChange, available }: CategoryFilters
             type="button"
             aria-pressed={isActive}
             onClick={() => onChange(option)}
-            className={`inline-flex shrink-0 items-center gap-1.5 rounded-full px-3.5 py-2 text-xs font-semibold motion-safe-transition focus:outline-none focus:ring-2 focus:ring-ocean/30 ${
+            className={`inline-flex shrink-0 items-center gap-1.5 rounded-full px-3.5 py-2 text-xs font-semibold motion-safe-transition focus:outline-none focus:ring-2 focus:ring-ocean/30 min-h-11 ${
               isActive
                 ? 'bg-ocean text-white shadow-sm'
                 : 'bg-white text-ocean ring-1 ring-fog hover:bg-mist'

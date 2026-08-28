@@ -17,10 +17,11 @@ type EmptyStateProps = {
 
 export function EmptyState({ status, onSubmit }: EmptyStateProps) {
   const [prefill, setPrefill] = useState('')
+  const isLoading = status === 'loading'
 
   return (
-    <section className="mt-2">
-      <div className="rounded-2xl border border-dashed border-ocean/20 bg-white/70 px-6 py-10 text-center sm:px-10">
+    <section className="mt-2" aria-label="Get started">
+      <div className="rounded-2xl border border-dashed border-ocean/20 bg-white/70 px-5 py-10 text-center sm:px-10">
         <div
           aria-hidden="true"
           className="mx-auto mb-5 flex size-14 items-center justify-center rounded-full bg-ocean/10 text-ocean"
@@ -31,8 +32,8 @@ export function EmptyState({ status, onSubmit }: EmptyStateProps) {
           Plan your next adventure
         </h2>
         <p className="mx-auto mt-3 max-w-md text-sm leading-relaxed text-ink/70">
-          Tell us where you&apos;re going, what you love, and how you want to spend your time.
-          We&apos;ll turn it into a structured day-by-day route — not a chat transcript.
+          Tell us where you want to go and we&apos;ll build your trip — a structured day-by-day
+          route you can browse, filter, and customize.
         </p>
 
         <div className="mt-8 text-left">
@@ -50,17 +51,26 @@ export function EmptyState({ status, onSubmit }: EmptyStateProps) {
             Popular inspiration
           </p>
           <div className="mt-3 flex flex-wrap justify-center gap-2">
-            {INSPIRATIONS.map(({ label, prompt }) => (
-              <button
-                key={label}
-                type="button"
-                onClick={() => setPrefill(prompt)}
-                disabled={status === 'loading'}
-                className="rounded-full bg-mist px-4 py-2 text-sm font-medium text-ocean motion-safe-transition hover:bg-ocean/10 focus:outline-none focus:ring-2 focus:ring-ocean/30 disabled:opacity-50"
-              >
-                {label}
-              </button>
-            ))}
+            {INSPIRATIONS.map(({ label, prompt }) => {
+              const isSelected = prefill === prompt
+
+              return (
+                <button
+                  key={label}
+                  type="button"
+                  aria-pressed={isSelected}
+                  onClick={() => setPrefill(prompt)}
+                  disabled={isLoading}
+                  className={`rounded-full px-4 py-2.5 text-sm font-medium motion-safe-transition focus:outline-none focus:ring-2 focus:ring-ocean/30 disabled:opacity-50 ${
+                    isSelected
+                      ? 'bg-ocean text-white shadow-sm'
+                      : 'bg-mist text-ocean ring-1 ring-fog hover:bg-ocean/10'
+                  }`}
+                >
+                  {label}
+                </button>
+              )
+            })}
           </div>
         </div>
       </div>

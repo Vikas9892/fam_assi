@@ -1,6 +1,7 @@
 import type { PlannerError } from '../hooks/useTripPlanner'
 
 const ERROR_HEADINGS: Record<PlannerError['code'], string> = {
+  invalid_request: 'Invalid request',
   rate_limited: 'Rate limit reached',
   malformed_json: 'Response could not be parsed',
   invalid_schema: 'Unexpected response format',
@@ -11,6 +12,7 @@ const ERROR_HEADINGS: Record<PlannerError['code'], string> = {
 }
 
 const ERROR_MESSAGES: Record<PlannerError['code'], string> = {
+  invalid_request: 'Please check your trip description and try again.',
   rate_limited: 'Groq is rate-limiting us. Wait a few seconds and try again.',
   malformed_json: "The AI response wasn't valid JSON. Please try again.",
   invalid_schema: 'The AI returned data in an unexpected format. Please try again.',
@@ -24,11 +26,19 @@ type StatusBannerProps = {
   error: PlannerError
   onRetry: () => void
   isLoading: boolean
+  hasExistingItinerary?: boolean
 }
 
-export function StatusBanner({ error, onRetry, isLoading }: StatusBannerProps) {
+export function StatusBanner({
+  error,
+  onRetry,
+  isLoading,
+  hasExistingItinerary = false,
+}: StatusBannerProps) {
   const heading = ERROR_HEADINGS[error.code] ?? ERROR_HEADINGS.unknown
-  const message = ERROR_MESSAGES[error.code] ?? ERROR_MESSAGES.unknown
+  const catalogMessage = ERROR_MESSAGES[error.code] ?? ERROR_MESSAGES.unknown
+  const message =
+    error.code === 'invalid_request' && error.message ? error.message : catalogMessage
 
   return (
     <div
@@ -41,6 +51,11 @@ export function StatusBanner({ error, onRetry, isLoading }: StatusBannerProps) {
       </div>
       <div className="px-4 py-4 sm:px-5">
         <p className="text-sm leading-relaxed text-ink/80">{message}</p>
+        {hasExistingItinerary && (
+          <p className="mt-2 text-sm text-ink/65">
+            Your current itinerary is still available below.
+          </p>
+        )}
         <button
           type="button"
           onClick={onRetry}

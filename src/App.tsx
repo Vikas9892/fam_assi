@@ -24,16 +24,32 @@ function App() {
   const showEmptyState = !itinerary && !isLoading
 
   return (
-    <main className="page-enter mx-auto min-h-screen w-full max-w-3xl overflow-x-hidden px-4 py-8 sm:px-6 sm:py-10">
+    <main className="page-enter mx-auto min-h-screen w-full max-w-3xl px-4 py-8 sm:px-6 sm:py-10">
       <AppHeader onNewTrip={reset} showNewTrip={Boolean(itinerary)} />
 
       {itinerary && (
-        <TripInputForm status={status} onSubmit={submit} variant="compact" />
+        <div className="min-w-0">
+          <TripInputForm status={status} onSubmit={submit} variant="compact" />
+        </div>
       )}
 
-      {isLoading && <LoadingExperience />}
+      {isLoading && !itinerary && <LoadingExperience />}
 
-      {error && <StatusBanner error={error} onRetry={retry} isLoading={isLoading} />}
+      {isLoading && itinerary && (
+        <p className="mt-4 flex items-center gap-2 text-sm font-medium text-ocean" aria-live="polite">
+          <span className="loading-pulse size-2 shrink-0 rounded-full bg-coral" aria-hidden="true" />
+          Planning your route…
+        </p>
+      )}
+
+      {error && (
+        <StatusBanner
+          error={error}
+          onRetry={retry}
+          isLoading={isLoading}
+          hasExistingItinerary={Boolean(itinerary)}
+        />
+      )}
 
       {showEmptyState && <EmptyState status={status} onSubmit={submit} />}
 

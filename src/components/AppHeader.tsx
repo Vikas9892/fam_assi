@@ -26,7 +26,7 @@ export function AppHeader({ onNewTrip, showNewTrip }: AppHeaderProps) {
         <button
           type="button"
           onClick={onNewTrip}
-          className="inline-flex min-h-11 items-center rounded-xl border border-fog bg-white px-4 py-2.5 text-sm font-semibold text-ocean shadow-sm motion-safe-transition hover:bg-mist focus:outline-none focus:ring-2 focus:ring-ocean/30"
+          className="btn-press inline-flex min-h-11 items-center rounded-xl border border-fog bg-white px-4 py-2.5 text-sm font-semibold text-ocean shadow-sm motion-safe-transition hover:bg-mist focus:outline-none focus:ring-2 focus:ring-ocean/30"
         >
           New trip
         </button>

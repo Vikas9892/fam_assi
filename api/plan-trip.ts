@@ -1,5 +1,12 @@
+import type { IncomingMessage } from 'node:http'
 import type { VercelRequest, VercelResponse } from '@vercel/node'
 import { itinerarySchema } from './lib/schema.js'
+
+export const config = {
+  api: {
+    bodyParser: false,
+  },
+}
 
 const MODEL = process.env.GROQ_MODEL ?? 'openai/gpt-oss-120b'
 const TEMPERATURE = 0.4
@@ -79,8 +86,47 @@ function parseAndValidate(raw: string): ParseOutcome {
   return { ok: true, data: result.data }
 }
 
-function isInvalidPrompt(prompt: unknown): prompt is string {
-  return typeof prompt !== 'string' || prompt.trim().length === 0
+function readRequestBody(req: IncomingMessage): Promise<string> {
+  return new Promise((resolve, reject) => {
+    const chunks: Buffer[] = []
+    req.on('data', (chunk: Buffer) => chunks.push(chunk))
+    req.on('end', () => resolve(Buffer.concat(chunks).toString('utf8')))
+    req.on('error', reject)
+  })
+}
+
+async function parseRequestBody(
+  req: VercelRequest,
+): Promise<{ ok: true; prompt: string } | { ok: false; message: string }> {
+  let raw = ''
+
+  try {
+    raw = await readRequestBody(req)
+  } catch {
+    return { ok: false, message: 'Could not read request body' }
+  }
+
+  if (!raw.trim()) {
+    return { ok: false, message: 'Request body is required' }
+  }
+
+  let parsed: unknown
+  try {
+    parsed = JSON.parse(raw)
+  } catch {
+    return { ok: false, message: 'Request body must be valid JSON' }
+  }
+
+  if (typeof parsed !== 'object' || parsed === null || !('prompt' in parsed)) {
+    return { ok: false, message: 'Request body must include a prompt field' }
+  }
+
+  const { prompt } = parsed as { prompt?: unknown }
+  if (typeof prompt !== 'string' || prompt.trim().length === 0) {
+    return { ok: false, message: 'A non-empty prompt string is required' }
+  }
+
+  return { ok: true, prompt: prompt.trim() }
 }
 
 function buildRepairMessages(
@@ -168,11 +214,13 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
     return res.status(405).json({ error: { message: 'Method not allowed' } })
   }
 
-  const { prompt } = req.body ?? {}
-
-  if (isInvalidPrompt(prompt)) {
+  const bodyResult = await parseRequestBody(req)
+  if (!bodyResult.ok) {
     return res.status(400).json({
-      error: { message: 'A non-empty prompt string is required' },
+      error: {
+        code: 'invalid_request',
+        message: bodyResult.message,
+      },
     })
   }
 
@@ -181,12 +229,12 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
     return res.status(502).json({
       error: {
         code: 'upstream_failure',
-        message: 'Server is missing GROQ_API_KEY configuration',
+        message: 'AI service is not configured',
       },
     })
   }
 
-  const trimmedPrompt = prompt.trim()
+  const trimmedPrompt = bodyResult.prompt
   const initialMessages: GroqMessage[] = [
     { role: 'system', content: SYSTEM_PROMPT },
     { role: 'user', content: trimmedPrompt },
@@ -231,13 +279,10 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
       })
     }
 
-    const message =
-      error instanceof Error ? error.message : 'Unexpected server error'
-
     return res.status(502).json({
       error: {
         code: 'upstream_failure',
-        message,
+        message: 'Could not reach the AI provider',
       },
     })
   }

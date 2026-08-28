@@ -1,10 +1,10 @@
 import { useEffect, useMemo, useState } from 'react'
+import type { Itinerary, StopCategory } from '../lib/schema'
 import { CategoryFilters, type CategoryFilter } from './CategoryFilters'
 import { DayTabs } from './DayTabs'
 import { DestinationHero } from './DestinationHero'
 import { StopCard } from './StopCard'
 import { TripSummary } from './TripSummary'
-import type { Itinerary, StopCategory } from '../lib/schema'
 
 type ItineraryViewProps = {
   itinerary: Itinerary
@@ -41,6 +41,8 @@ export function ItineraryView({
     }
   }, [activeDay, availableCategories, categoryFilter])
 
+  const firstStopTime = visibleStops[0]?.time
+
   return (
     <section className="itinerary-enter mt-8 space-y-6">
       <DestinationHero itinerary={itinerary} />
@@ -53,17 +55,29 @@ export function ItineraryView({
           role="tabpanel"
           id={`day-panel-${currentDay.day}`}
           aria-labelledby={`day-tab-${currentDay.day}`}
-          className="space-y-5"
+          className="min-w-0 space-y-5"
         >
-          <div className="flex flex-wrap items-end justify-between gap-3">
-            <h3 className="text-base font-medium text-ink/75">
-              Day {currentDay.day} · {currentDay.label}
-            </h3>
-            <CategoryFilters
-              active={categoryFilter}
-              onChange={setCategoryFilter}
-              available={availableCategories}
-            />
+          <div className="rounded-xl border border-fog bg-white/70 px-4 py-4 sm:px-5">
+            <p className="text-[11px] font-semibold uppercase tracking-[0.16em] text-ocean/60">
+              Today&apos;s route
+            </p>
+            <div className="mt-1 flex flex-wrap items-end justify-between gap-3">
+              <div className="min-w-0">
+                <h3 className="font-display text-xl font-semibold text-ocean sm:text-2xl">
+                  Day {currentDay.day} · {currentDay.label}
+                </h3>
+                <p className="mt-1 text-sm text-ink/70">
+                  {visibleStops.length}{' '}
+                  {visibleStops.length === 1 ? 'stop' : 'stops'}
+                  {firstStopTime ? ` · first up at ${firstStopTime}` : ''}
+                </p>
+              </div>
+              <CategoryFilters
+                active={categoryFilter}
+                onChange={setCategoryFilter}
+                available={availableCategories}
+              />
+            </div>
           </div>
 
           {visibleStops.length === 0 ? (
@@ -72,18 +86,21 @@ export function ItineraryView({
               All.
             </p>
           ) : (
-            <div className="space-y-8 pb-2">
+            <ol className="min-w-0 list-none space-y-0 pb-2" aria-label={`Day ${currentDay.day} stops`}>
               {visibleStops.map((stop, index) => (
-                <StopCard
-                  key={stop.id}
-                  stop={stop}
-                  isFirst={index === 0}
-                  isLast={index === visibleStops.length - 1}
-                  onRemove={onRemoveStop}
-                  onMove={onMoveStop}
-                />
+                <li key={stop.id} className="min-w-0">
+                  <StopCard
+                    stop={stop}
+                    stopIndex={index}
+                    isFirst={index === 0}
+                    isLast={index === visibleStops.length - 1}
+                    isUpNext={index === 0}
+                    onRemove={onRemoveStop}
+                    onMove={onMoveStop}
+                  />
+                </li>
               ))}
-            </div>
+            </ol>
           )}
         </div>
       )}

@@ -52,22 +52,15 @@
     transition-timing-function: ease-out;
   }
 
+  .visual-grid {
+    background-image:
+      linear-gradient(color-mix(in srgb, white 8%, transparent) 1px, transparent 1px),
+      linear-gradient(90deg, color-mix(in srgb, white 8%, transparent) 1px, transparent 1px);
+    background-size: 24px 24px;
+  }
+
   .card-lift {
     transition: box-shadow 180ms ease-out, transform 180ms ease-out;
-  }
-
-  .card-lift:hover {
-    box-shadow: 0 8px 24px color-mix(in srgb, var(--color-ocean) 12%, transparent);
-    transform: translateY(-1px);
-  }
-
-  .image-zoom {
-    transition: transform 400ms ease-out;
-  }
-
-  .group:hover .image-zoom,
-  .card-lift:hover .image-zoom {
-    transform: scale(1.03);
   }
 
   .btn-press:active {
@@ -91,6 +84,13 @@
 
   .loading-pulse {
     animation: loading-pulse 1.4s ease-in-out infinite;
+  }
+
+  @media (hover: hover) {
+    .card-lift:hover {
+      box-shadow: 0 6px 20px color-mix(in srgb, var(--color-ocean) 10%, transparent);
+      transform: translateY(-1px);
+    }
   }
 
   @keyframes page-enter {
@@ -133,7 +133,6 @@
 
     .motion-safe-transition,
     .card-lift,
-    .image-zoom,
     .day-tab,
     .btn-press {
       transition: none !important;
@@ -141,10 +140,7 @@
 
     .card-lift:hover {
       transform: none;
-    }
-
-    .card-lift:hover .image-zoom {
-      transform: none;
+      box-shadow: none;
     }
 
     .btn-press:active {
